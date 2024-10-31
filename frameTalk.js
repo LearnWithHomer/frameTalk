@@ -97,9 +97,22 @@
 			repeatersTable[promiseInd] = "cleared";
 		}
 	}
+
+	function safeParseJson(jsonString) {
+		try {
+			return window.JSON.retrocycle(JSON.parse(jsonString));
+		} catch (error) {
+			return null; // Return a fallback value, e.g., null or {}
+		}
+	}
+
 	function receiveMessage(event) {
 		// frameTalk.sendMessage always sends a string, so, turn it into json
-		var eventObjData = window.JSON.retrocycle(JSON.parse(event.data));
+		var eventObjData = safeParseJson(event?.data)
+
+		// Early out any non-JSON messages not intended for frameTalk
+		if (eventObjData == null) return;
+
 		var theFunction = eventObjData.theFunction,
 			theParams = eventObjData.theParams,
 			windowId = eventObjData.windowId,
